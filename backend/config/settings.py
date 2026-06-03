@@ -137,7 +137,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),                         # 项目级静态文件目录
     os.path.join(BASE_DIR.parent, 'frontend', 'dist'),        # 前端构建输出目录
 ]
-STATIC_ROOT = os.path.join(BASE_DIR.parent, 'staticfiles')    # collectstatic 收集目标目录
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')            # collectstatic 收集目标目录
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
