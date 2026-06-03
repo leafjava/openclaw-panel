@@ -8,7 +8,7 @@ import requests
 from datetime import date
 from django.core.management.base import BaseCommand
 from home.models import NewsHotspot
-from anthropic import Anthropic
+from openai import OpenAI
 
 
 # RSS 源配置
@@ -42,12 +42,16 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write('开始抓取新闻...')
 
-        api_key = os.environ.get('ANTHROPIC_API_KEY')
+        api_key = os.environ.get('OPENAI_API_KEY')
         if not api_key:
-            self.stderr.write('错误: 未设置 ANTHROPIC_API_KEY 环境变量')
+            self.stderr.write('错误: 未设置 OPENAI_API_KEY 环境变量')
             return
 
-        client = Anthropic(api_key=api_key)
+        client = OpenAI(
+            api_key=api_key,
+            base_url=os.environ.get('OPENAI_BASE_URL', 'https://api.openai.com/v1'),
+        )
+        model = os.environ.get('OPENAI_MODEL', 'gpt-4o-mini')
         all_news = []
 
         # 1. 从各个 RSS 源抓取
@@ -60,8 +64,8 @@ class Command(BaseCommand):
 
         saved_count = 0
         for i, news in enumerate(all_news):
-            # 2. 调用 Claude API 进行评分和摘要
-            result = self.ai_score(client, news)
+            # 2. 调用 AI API 进行评分和摘要
+            result = self.ai_score(client, model, news)
             if result is None:
                 continue
 
@@ -127,8 +131,8 @@ class Command(BaseCommand):
             self.stderr.write(f'  RSS 解析失败 ({source["name"]}): {e}')
             return []
 
-    def ai_score(self, client, news):
-        """调用 Claude API 评分"""
+    def ai_score(self, client, model, news):
+        """调用 OpenAI 兼容 API 评分"""
         prompt = f"""你是一个新闻质量评估器。请对以下新闻进行评分和分类。
 
 新闻标题: {news['title']}
@@ -147,13 +151,16 @@ class Command(BaseCommand):
 {{"score": 7, "category": "IT", "summary_zh": "用中文写一句简短摘要（20字以内）"}}"""
 
         try:
-            message = client.messages.create(
-                model="claude-sonnet-4-6",
+            message = client.chat.completions.create(
+                model=model,
                 max_tokens=200,
-                system="你只返回 JSON，不返回其他内容。",
-                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                messages=[
+                    {"role": "system", "content": "你只返回 JSON，不返回其他内容。"},
+                    {"role": "user", "content": prompt},
+                ],
             )
-            text = message.content[0].text.strip()
+            text = message.choices[0].message.content.strip()
             # 提取 JSON（可能包裹在 ``` 中）
             if '```' in text:
                 text = text.split('```')[1]

@@ -9,7 +9,7 @@ from datetime import datetime
 from django.utils import timezone
 from django.core.management.base import BaseCommand
 from home.models import TwitterPost
-from anthropic import Anthropic
+from openai import OpenAI
 
 
 class Command(BaseCommand):
@@ -32,12 +32,16 @@ class Command(BaseCommand):
             self.stderr.write('错误: 未设置 TWITTER_BEARER_TOKEN 环境变量')
             return
 
-        anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
-        if not anthropic_key:
-            self.stderr.write('错误: 未设置 ANTHROPIC_API_KEY 环境变量')
+        api_key = os.environ.get('OPENAI_API_KEY')
+        if not api_key:
+            self.stderr.write('错误: 未设置 OPENAI_API_KEY 环境变量')
             return
 
-        client = Anthropic(api_key=anthropic_key)
+        client = OpenAI(
+            api_key=api_key,
+            base_url=os.environ.get('OPENAI_BASE_URL', 'https://api.openai.com/v1'),
+        )
+        model = os.environ.get('OPENAI_MODEL', 'gpt-4o-mini')
 
         # 获取要监控的用户列表
         if options.get('users'):
@@ -62,7 +66,7 @@ class Command(BaseCommand):
 
             for tweet in tweets:
                 # AI 分类
-                category = self.ai_classify(client, tweet['content'])
+                category = self.ai_classify(client, model, tweet['content'])
                 if category is None:
                     continue
 
@@ -135,8 +139,8 @@ class Command(BaseCommand):
             self.stderr.write(f'    获取 @{username} 的 user_id 失败: {e}')
             return None
 
-    def ai_classify(self, client, content):
-        """调用 Claude API 对推文分类"""
+    def ai_classify(self, client, model, content):
+        """调用 OpenAI 兼容 API 对推文分类"""
         prompt = f"""请将以下推文分类。分类选项：娱乐、币圈、金融、IT、其他。
 
 推文内容：
@@ -146,13 +150,16 @@ class Command(BaseCommand):
 {{"category": "币圈"}}"""
 
         try:
-            message = client.messages.create(
-                model="claude-sonnet-4-6",
+            message = client.chat.completions.create(
+                model=model,
                 max_tokens=50,
-                system="你只返回 JSON，不返回其他内容。",
-                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                messages=[
+                    {"role": "system", "content": "你只返回 JSON，不返回其他内容。"},
+                    {"role": "user", "content": prompt},
+                ],
             )
-            text = message.content[0].text.strip()
+            text = message.choices[0].message.content.strip()
             if '```' in text:
                 text = text.split('```')[1]
                 if text.startswith('json'):
