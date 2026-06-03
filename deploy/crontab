@@ -1,0 +1,11 @@
+# OpenClaw Panel 定时任务
+# 使用方法: crontab deploy/crontab  或  crontab -e 后粘贴
+
+# 每30分钟抓取新闻并 AI 评分
+*/30 * * * * cd /opt/openclaw-panel/backend && export $(cat config/.env | grep -v '^#' | xargs) && /opt/openclaw-panel/venv/bin/python manage.py fetch_news >> /var/log/openclaw/cron_news.log 2>&1
+
+# 每30分钟抓取 Twitter 动态并 AI 分类
+*/30 * * * * cd /opt/openclaw-panel/backend && export $(cat config/.env | grep -v '^#' | xargs) && /opt/openclaw-panel/venv/bin/python manage.py fetch_twitter >> /var/log/openclaw/cron_twitter.log 2>&1
+
+# 每小时抓取 GitHub 热门仓库
+0 * * * * cd /opt/openclaw-panel/backend && export $(cat config/.env | grep -v '^#' | xargs) && /opt/openclaw-panel/venv/bin/python manage.py fetch_github >> /var/log/openclaw/cron_github.log 2>&1

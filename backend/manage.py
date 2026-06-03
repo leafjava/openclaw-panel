@@ -3,6 +3,13 @@
 import os
 import sys
 
+# 使用 PyMySQL 替代 mysqlclient（兼容 Django 5.2+）
+import pymysql
+pymysql.install_as_MySQLdb()
+import MySQLdb
+MySQLdb.__version__ = "2.2.1"
+MySQLdb.version_info = (2, 2, 1, "final", 0)
+
 
 def main():
     """Run administrative tasks."""

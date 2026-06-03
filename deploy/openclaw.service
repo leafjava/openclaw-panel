@@ -1,0 +1,20 @@
+[Unit]
+Description=OpenClaw Panel Django Backend
+After=network.target mysql.service
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/openclaw-panel/backend
+EnvironmentFile=/opt/openclaw-panel/backend/config/.env
+ExecStart=/opt/openclaw-panel/venv/bin/gunicorn config.wsgi:application \
+    --bind 127.0.0.1:8000 \
+    --workers 2 \
+    --log-file /var/log/openclaw/gunicorn.log \
+    --access-logfile /var/log/openclaw/access.log
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

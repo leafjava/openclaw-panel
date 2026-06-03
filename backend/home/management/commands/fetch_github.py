@@ -30,12 +30,12 @@ class Command(BaseCommand):
             )
             if created:
                 saved_count += 1
-                self.stdout.write(self.style.SUCCESS(f'  新增: {repo["title"]} ({repo["stars"]}⭐)'))
+                self.stdout.write(self.style.SUCCESS(f'  新增: {repo["title"]} ({repo["stars"]} stars)'))
 
         self.stdout.write(self.style.SUCCESS(f'完成！新增 {saved_count} 条，共处理 {len(repos)} 条'))
 
     def fetch_trending_repos(self):
-        """使用 GitHub Search API 搜索 AI/ML 相关热门仓库"""
+        """使用 GitHub Search API 搜索 AI/ML 相关热门仓库，0 条时自动回退到 Trending 页面"""
         yesterday = (date.today() - timedelta(days=1)).isoformat()
         keywords = 'AI+machine-learning+LLM+deep-learning+open-source+tool'
 
@@ -74,6 +74,11 @@ class Command(BaseCommand):
                 'stars': item['stargazers_count'],
                 'language': item.get('language') or '',
             })
+
+        # Search API 返回 0 条时，回退到 Trending 页面
+        if not repos:
+            self.stdout.write('  Search API 无结果，改用 Trending 页面抓取...')
+            return self.fetch_trending_fallback()
 
         return sorted(repos, key=lambda r: r['stars'], reverse=True)[:15]
 
