@@ -93,7 +93,7 @@ DATABASES = {
     'ENGINE':'django.db.backends.mysql',
     'NAME':'openclaw',
     'HOST':'127.0.0.1',
-    'USER':'root',
+    'USER':'openclaw',
     'PASSWORD':'FFDRBhrnscLzCfMT',
     'PORT': '3306',
   }
