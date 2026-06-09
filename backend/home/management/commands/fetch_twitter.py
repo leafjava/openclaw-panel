@@ -149,27 +149,33 @@ class Command(BaseCommand):
 请只返回一个 JSON 对象，不要包含其他文字：
 {{"category": "币圈"}}"""
 
-        try:
-            message = client.chat.completions.create(
-                model=model,
-                max_tokens=50,
-                temperature=0.3,
-                messages=[
-                    {"role": "system", "content": "你只返回 JSON，不返回其他内容。"},
-                    {"role": "user", "content": prompt},
-                ],
-            )
-            text = message.choices[0].message.content.strip()
-            if '```' in text:
-                text = text.split('```')[1]
-                if text.startswith('json'):
-                    text = text[4:]
-                text = text.strip()
-            result = json.loads(text)
-            category = result.get('category', '其他')
-            # 确保分类在有效选项中
-            valid_categories = ['娱乐', '币圈', '金融', 'IT', '其他']
-            return category if category in valid_categories else '其他'
-        except Exception as e:
-            self.stderr.write(f'    AI 分类失败: {e}')
-            return '其他'
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                message = client.chat.completions.create(
+                    model=model,
+                    max_tokens=50,
+                    temperature=0.3,
+                    messages=[
+                        {"role": "system", "content": "你只返回 JSON，不返回其他内容。"},
+                        {"role": "user", "content": prompt},
+                    ],
+                )
+                text = message.choices[0].message.content.strip()
+                if '```' in text:
+                    text = text.split('```')[1]
+                    if text.startswith('json'):
+                        text = text[4:]
+                    text = text.strip()
+                result = json.loads(text)
+                category = result.get('category', '其他')
+                # 确保分类在有效选项中
+                valid_categories = ['娱乐', '币圈', '金融', 'IT', '其他']
+                return category if category in valid_categories else '其他'
+            except Exception as e:
+                if '429' in str(e) and attempt < max_retries - 1:
+                    import time
+                    time.sleep(2)  # 等待 2 秒后重试
+                    continue
+                self.stderr.write(f'    AI 分类失败: {e}')
+                return '其他'
