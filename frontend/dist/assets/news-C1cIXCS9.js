@@ -1,0 +1,1 @@
+import{t as e}from"./api--jCEWeAx.js";function t(t={}){return e.get(`/news/`,{params:t})}function n(t={}){return e.get(`/chrome-news/`,{params:t})}export{t as n,n as t};
