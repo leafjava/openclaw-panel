@@ -19,6 +19,11 @@ const router = createRouter({
       component: () => import('@/views/NewsView.vue'),
     },
     {
+      path: '/chrome-news',
+      name: 'chrome-news',
+      component: () => import('@/views/ChromeNewsView.vue'),
+    },
+    {
       path: '/twitter',
       name: 'twitter',
       component: () => import('@/views/TwitterView.vue'),

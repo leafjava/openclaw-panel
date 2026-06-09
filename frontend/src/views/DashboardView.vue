@@ -22,6 +22,13 @@ const cards = computed(() => [
     link: '/news',
   },
   {
+    title: 'Chrome 新闻',
+    icon: 'fa-chrome',
+    count: store.stats?.chrome_news_count ?? '-',
+    color: 'from-emerald-500 to-emerald-700',
+    link: '/chrome-news',
+  },
+  {
     title: 'Twitter 动态',
     icon: 'fa-twitter',
     count: store.stats?.twitter_count ?? '-',
@@ -48,7 +55,7 @@ const cards = computed(() => [
 
     <!-- 统计卡片 -->
     <template v-else>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
         <RouterLink
           v-for="card in cards"
           :key="card.title"
@@ -67,7 +74,7 @@ const cards = computed(() => [
       </div>
 
       <!-- 分类统计 -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6" v-if="store.stats">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" v-if="store.stats">
         <!-- GitHub Top 语言 -->
         <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
           <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2">
@@ -102,6 +109,27 @@ const cards = computed(() => [
             >
               <span class="text-sm text-gray-600">
                 <span class="inline-block w-5 h-5 rounded-full bg-blue-100 text-blue-600 text-xs text-center leading-5 mr-2">{{ idx + 1 }}</span>
+                {{ cat.category || '(无)' }}
+              </span>
+              <span class="font-mono text-sm text-gray-900 font-medium">{{ cat.count }}</span>
+            </li>
+          </ul>
+          <p v-else class="text-sm text-gray-400 italic">暂无数据</p>
+        </div>
+
+        <!-- Chrome News Top 分类 -->
+        <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+          <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            <i class="fa fa-chrome text-emerald-500"></i> Top Chrome 分类
+          </h3>
+          <ul v-if="store.stats.top_chrome_news_categories?.length" class="space-y-2">
+            <li
+              v-for="(cat, idx) in store.stats.top_chrome_news_categories"
+              :key="cat.category"
+              class="flex justify-between items-center py-1.5 px-2 rounded hover:bg-gray-50"
+            >
+              <span class="text-sm text-gray-600">
+                <span class="inline-block w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 text-xs text-center leading-5 mr-2">{{ idx + 1 }}</span>
                 {{ cat.category || '(无)' }}
               </span>
               <span class="font-mono text-sm text-gray-900 font-medium">{{ cat.count }}</span>

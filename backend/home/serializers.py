@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import GitHubHotspot, NewsHotspot, TwitterPost
+from .models import GitHubHotspot, NewsHotspot, ChromeNews, TwitterPost
 
 
 class GitHubHotspotSerializer(serializers.ModelSerializer):
@@ -11,6 +11,12 @@ class GitHubHotspotSerializer(serializers.ModelSerializer):
 class NewsHotspotSerializer(serializers.ModelSerializer):
     class Meta:
         model = NewsHotspot
+        fields = '__all__'
+
+
+class ChromeNewsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChromeNews
         fields = '__all__'
 
 

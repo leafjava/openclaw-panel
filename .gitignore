@@ -2,6 +2,7 @@ venv
 venv/
 *.pyc
 __pycache__
+__pycache__/
 .env
 staticfiles/
 node_modules/

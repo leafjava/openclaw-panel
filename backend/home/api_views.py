@@ -5,13 +5,14 @@ from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 
-from .models import GitHubHotspot, NewsHotspot, TwitterPost
+from .models import GitHubHotspot, NewsHotspot, ChromeNews, TwitterPost
 from .serializers import (
     GitHubHotspotSerializer,
     NewsHotspotSerializer,
+    ChromeNewsSerializer,
     TwitterPostSerializer,
 )
-from .filters import GitHubHotspotFilter, NewsHotspotFilter, TwitterPostFilter
+from .filters import GitHubHotspotFilter, NewsHotspotFilter, ChromeNewsFilter, TwitterPostFilter
 
 
 class GitHubHotspotViewSet(viewsets.ReadOnlyModelViewSet):
@@ -32,6 +33,15 @@ class NewsHotspotViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ['-score']
 
 
+class ChromeNewsViewSet(viewsets.ReadOnlyModelViewSet):
+    """Chrome 新闻 API（只读）"""
+    queryset = ChromeNews.objects.all()
+    serializer_class = ChromeNewsSerializer
+    filterset_class = ChromeNewsFilter
+    ordering_fields = ['score', 'publish_date', 'created_at']
+    ordering = ['-score']
+
+
 class TwitterPostViewSet(viewsets.ReadOnlyModelViewSet):
     """Twitter 动态 API（只读）"""
     queryset = TwitterPost.objects.all()
@@ -47,6 +57,7 @@ def dashboard_stats(request):
     return Response({
         'github_count': GitHubHotspot.objects.count(),
         'news_count': NewsHotspot.objects.count(),
+        'chrome_news_count': ChromeNews.objects.count(),
         'twitter_count': TwitterPost.objects.count(),
         'top_languages': list(
             GitHubHotspot.objects.values('language')
@@ -55,6 +66,11 @@ def dashboard_stats(request):
         ),
         'top_news_categories': list(
             NewsHotspot.objects.values('category')
+            .annotate(count=Count('id'))
+            .order_by('-count')[:5]
+        ),
+        'top_chrome_news_categories': list(
+            ChromeNews.objects.values('category')
             .annotate(count=Count('id'))
             .order_by('-count')[:5]
         ),

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import GitHubHotspot, NewsHotspot, TwitterPost
+from .models import GitHubHotspot, NewsHotspot, ChromeNews, TwitterPost
 
 
 @admin.register(GitHubHotspot)
@@ -12,6 +12,14 @@ class GitHubHotspotAdmin(admin.ModelAdmin):
 
 @admin.register(NewsHotspot)
 class NewsHotspotAdmin(admin.ModelAdmin):
+    list_display = ('title', 'score', 'category', 'source', 'publish_date', 'created_at')
+    list_filter = ('category', 'source', 'score')
+    search_fields = ('title', 'summary')
+    date_hierarchy = 'publish_date'
+
+
+@admin.register(ChromeNews)
+class ChromeNewsAdmin(admin.ModelAdmin):
     list_display = ('title', 'score', 'category', 'source', 'publish_date', 'created_at')
     list_filter = ('category', 'source', 'score')
     search_fields = ('title', 'summary')

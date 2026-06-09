@@ -38,6 +38,13 @@ import { RouterLink, RouterView } from 'vue-router'
               <i class="fa fa-newspaper-o mr-1"></i> 新闻热点
             </RouterLink>
             <RouterLink
+              to="/chrome-news"
+              class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+              :class="$route.path === '/chrome-news' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'"
+            >
+              <i class="fa fa-chrome mr-1"></i> Chrome 新闻
+            </RouterLink>
+            <RouterLink
               to="/twitter"
               class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
               :class="$route.path === '/twitter' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'"

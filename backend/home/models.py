@@ -41,6 +41,26 @@ class NewsHotspot(models.Model):
         return f'[{self.score}分] {self.title} - {self.source}'
 
 
+class ChromeNews(models.Model):
+    """Chrome 收藏的新闻资讯"""
+    title = models.CharField(max_length=500, verbose_name='标题')
+    url = models.URLField(max_length=500, verbose_name='原文链接')
+    source = models.CharField(max_length=100, verbose_name='来源')
+    summary = models.TextField(verbose_name='摘要')
+    score = models.PositiveSmallIntegerField(verbose_name='AI 评分')  # 1-10 分
+    category = models.CharField(max_length=50, verbose_name='分类')  # IT、币圈等
+    publish_date = models.DateField(verbose_name='发布日期')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='收录时间')
+
+    class Meta:
+        ordering = ['-score']
+        verbose_name = 'Chrome 新闻'
+        verbose_name_plural = 'Chrome 新闻'
+
+    def __str__(self):
+        return f'[{self.score}分] {self.title} - {self.source}'
+
+
 class TwitterPost(models.Model):
     """Twitter/X 关注博主动态"""
     post_id = models.CharField(max_length=100, unique=True, verbose_name='推文 ID')

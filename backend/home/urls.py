@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .api_views import (
     GitHubHotspotViewSet,
     NewsHotspotViewSet,
+    ChromeNewsViewSet,
     TwitterPostViewSet,
     dashboard_stats,
 )
@@ -10,6 +11,7 @@ from .api_views import (
 router = DefaultRouter()
 router.register(r'github', GitHubHotspotViewSet, basename='github')
 router.register(r'news', NewsHotspotViewSet, basename='news')
+router.register(r'chrome-news', ChromeNewsViewSet, basename='chrome-news')
 router.register(r'twitter', TwitterPostViewSet, basename='twitter')
 
 urlpatterns = [
