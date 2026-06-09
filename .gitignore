@@ -1,11 +1,16 @@
 venv
 venv/
-*.pyc
-__pycache__
-__pycache__/
 .env
 staticfiles/
 node_modules/
 # dist/
 .claude
+
+# Claude AI 生成的文件
 .claude/
+
+# Python 缓存（推荐更宽松的规则）
+__pycache__/
+*.pyc
+*.pyo
+_pycache_/
